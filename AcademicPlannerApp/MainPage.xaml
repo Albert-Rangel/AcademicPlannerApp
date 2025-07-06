@@ -2,12 +2,16 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:AcademicPlannerApp.ViewModels"
+             xmlns:models="clr-namespace:AcademicPlannerApp.Data.Models;assembly=AcademicPlannerApp.Data"
+             xmlns:converters="clr-namespace:AcademicPlannerApp.Converters"
              x:Class="AcademicPlannerApp.MainPage"
              x:DataType="vm:MainViewModel"
              Title="{Binding Title}">
-
-    <ContentPage.BindingContext>
-    </ContentPage.BindingContext>
+    
+    <ContentPage.Resources>
+        <converters:NullToBoolConverter x:Key="NullToBoolConverter" />
+        <converters:InverseNullToBoolConverter x:Key="InverseNullToBoolConverter" />
+    </ContentPage.Resources>
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Nuevo Curso" Command="{Binding NewCourseCommand}" IconImageSource="plus.png" />
@@ -45,39 +49,77 @@
 
                 <Button Text="Guardar Curso" Command="{Binding SaveCourseCommand}" />
                 <Button Text="Eliminar Curso" Command="{Binding DeleteCourseCommand}" BackgroundColor="Red" TextColor="White" />
-
             </VerticalStackLayout>
         </ScrollView>
 
-        <StackLayout Grid.Row="1" Grid.Column="1" Padding="10">
-            <Label Text="Asignaciones" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Center" />
-            <Button Text="Nueva Asignación" Command="{Binding NewAssignmentCommand}" Margin="0,5" />
-            <CollectionView ItemsSource="{Binding Assignments}"
-                            SelectedItem="{Binding SelectedAssignment}"
-                            SelectionMode="Single">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="vm:AssignmentViewModel">
-                        <Grid Padding="10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <VerticalStackLayout>
-                                <Label Text="{Binding Title}" FontAttributes="Bold" />
-                                <Label Text="{Binding DueDate, StringFormat='Fecha Límite: {0:dd/MM/yyyy}'}" FontSize="Small" TextColor="Gray" />
-                            </VerticalStackLayout>
-                            <Label Grid.Column="1" Text="{Binding Status}" HorizontalTextAlignment="End" TextColor="Gray" />
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-            <Button Text="Guardar Asignación" Command="{Binding SaveAssignmentCommand}" />
-            <Button Text="Eliminar Asignación" Command="{Binding DeleteAssignmentCommand}" BackgroundColor="Red" TextColor="White" />
-        </StackLayout>
+        <ScrollView Grid.Row="1" Grid.Column="1" Padding="10">
+            <Grid RowDefinitions="Auto, Auto, *, Auto, Auto, Auto" ColumnDefinitions="*">
+                <Label Grid.Row="0" Text="Asignaciones" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Center" />
+                <Button Grid.Row="1" Text="Nueva Asignación" Command="{Binding NewAssignmentCommand}" Margin="0,5" />
 
-        <StackLayout Grid.Row="2" Grid.ColumnSpan="2" Padding="10">
+                <CollectionView Grid.Row="2"
+                                ItemsSource="{Binding Assignments}"
+                                SelectedItem="{Binding SelectedAssignment}"
+                                SelectionMode="Single">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:AssignmentViewModel">
+                            <Grid Padding="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                    <Label Text="{Binding DueDate, StringFormat='Fecha Límite: {0:dd/MM/yyyy}'}" FontSize="Small" TextColor="Gray" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" Text="{Binding Status}" HorizontalTextAlignment="End" TextColor="Gray" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <VerticalStackLayout Grid.Row="3" Spacing="5" Margin="0,10,0,0"
+                                     IsVisible="{Binding SelectedAssignment, Converter={StaticResource NullToBoolConverter}}">
+                    <Label Text="Detalles de Asignación" FontSize="Small" FontAttributes="Bold" />
+                    <Entry Placeholder="Título de la Tarea" Text="{Binding SelectedAssignment.Title}" />
+                    <Entry Placeholder="Descripción (Opcional)" Text="{Binding SelectedAssignment.Description}" />
+
+                    <Label Text="Fecha Límite:" FontSize="Small" />
+                    <DatePicker Date="{Binding SelectedAssignment.DueDate}" Format="dd/MM/yyyy" />
+
+                    <Label Text="Estado:" FontSize="Small" />
+                    <Picker SelectedItem="{Binding SelectedAssignment.Status}" Title="Selecciona Estado">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type models:AssignmentStatus}">
+                                <models:AssignmentStatus>Pending</models:AssignmentStatus>
+                                <models:AssignmentStatus>InProgress</models:AssignmentStatus>
+                                <models:AssignmentStatus>Completed</models:AssignmentStatus>
+                                <models:AssignmentStatus>Overdue</models:AssignmentStatus>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+
+                    <Label Text="Prioridad:" FontSize="Small" />
+                    <Picker SelectedItem="{Binding SelectedAssignment.Priority}" Title="Selecciona Prioridad">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type models:AssignmentPriority}">
+                                <models:AssignmentPriority>Low</models:AssignmentPriority>
+                                <models:AssignmentPriority>Medium</models:AssignmentPriority>
+                                <models:AssignmentPriority>High</models:AssignmentPriority>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </VerticalStackLayout>
+
+                <Button Grid.Row="4" Text="Guardar Asignación" Command="{Binding SaveAssignmentCommand}" />
+                <Button Grid.Row="5" Text="Eliminar Asignación" Command="{Binding DeleteAssignmentCommand}" BackgroundColor="Red" TextColor="White" />
+            </Grid>
+        </ScrollView>
+
+        <VerticalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Padding="10">
             <Label Text="Notas" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Center" />
             <Button Text="Nueva Nota" Command="{Binding NewNoteCommand}" Margin="0,5" />
+
             <CollectionView ItemsSource="{Binding Notes}"
                             SelectedItem="{Binding SelectedNote}"
                             SelectionMode="Single">
@@ -96,9 +138,18 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+
+            <ScrollView IsVisible="{Binding SelectedNote, Converter={StaticResource NullToBoolConverter}}">
+                <VerticalStackLayout Spacing="5" Margin="0,10,0,0">
+                    <Label Text="Detalles de Nota" FontSize="Small" FontAttributes="Bold" />
+                    <Entry Placeholder="Título de la Nota" Text="{Binding SelectedNote.Title}" />
+                    <Editor Placeholder="Contenido de la Nota" Text="{Binding SelectedNote.Content}" AutoSize="TextChanges" HeightRequest="100" />
+                </VerticalStackLayout>
+            </ScrollView>
+
             <Button Text="Guardar Nota" Command="{Binding SaveNoteCommand}" />
             <Button Text="Eliminar Nota" Command="{Binding DeleteNoteCommand}" BackgroundColor="Red" TextColor="White" />
-        </StackLayout>
+        </VerticalStackLayout>
 
     </Grid>
 </ContentPage>

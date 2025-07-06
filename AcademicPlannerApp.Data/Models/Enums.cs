@@ -11,7 +11,8 @@ namespace AcademicPlannerApp.Data.Models
         Pending,
         InProgress,
         Completed,
-        Deferred
+        Deferred,
+        Overdue
     }
 
     public enum AssignmentPriority
