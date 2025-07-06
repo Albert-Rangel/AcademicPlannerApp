@@ -101,23 +101,66 @@ namespace AcademicPlannerApp.ViewModels
         [RelayCommand(CanExecute = nameof(CanExecuteSaveCourse))]
         private async Task SaveCourseAsync()
         {
+            //IsBusy = true;
+            //try
+            //{
+            //    if (SelectedCourse == null) return;
+            //    await _dataService.SaveCourseAsync(SelectedCourse.Course);
+            //    await LoadDataAsync(); // Recargar todo para actualizar las listas
+            //    SelectedCourse = Courses.FirstOrDefault(c => c.Id == SelectedCourse.Id); // Volver a seleccionar por ID si se generó uno nuevo
+            //    if (SelectedCourse == null && Courses.Any()) SelectedCourse = Courses.First();
+            //}
+            //catch (Exception ex)
+            //{
+            //    await _dialogService.DisplayAlert("Error", $"Error al guardar curso: {ex.Message}", "OK");
+            //}
+            //finally
+            //{
+            //    IsBusy = false;
+            //}
             IsBusy = true;
             try
             {
                 if (SelectedCourse == null) return;
-                await _dataService.SaveCourseAsync(SelectedCourse.Course);
-                await LoadDataAsync(); // Recargar todo para actualizar las listas
-                SelectedCourse = Courses.FirstOrDefault(c => c.Id == SelectedCourse.Id); // Volver a seleccionar por ID si se generó uno nuevo
-                if (SelectedCourse == null && Courses.Any()) SelectedCourse = Courses.First();
+
+                // Guarda el ID del curso ANTES de recargar los datos.
+                // Si es un curso nuevo, su Id será 0.
+                int courseIdToReselect = SelectedCourse.Id;
+
+                await _dataService.SaveCourseAsync(SelectedCourse.Course); // El Id del SelectedCourse.Course se actualizará aquí si era nuevo.
+
+                // Si era un curso nuevo, el Id habrá cambiado, así que usamos el Id actualizado del modelo.
+                if (courseIdToReselect == 0)
+                {
+                    courseIdToReselect = SelectedCourse.Id;
+                }
+
+                await LoadDataAsync(); // Recargar todo. Esto borrará y volverá a poblar 'Courses'.
+
+                // Intenta reseleccionar el curso usando el ID que acabamos de guardar/obtener.
+                SelectedCourse = Courses.FirstOrDefault(c => c.Id == courseIdToReselect);
+
+                // Si no se encontró el curso re-seleccionado (ej. la lista está vacía después de borrar el último curso,
+                // o hubo un problema al guardar), podemos decidir qué hacer.
+                // Una opción es seleccionar el primer curso si hay alguno, o dejarlo nulo.
+                if (SelectedCourse == null && Courses.Any())
+                {
+                    SelectedCourse = Courses.First();
+                }
+                // Si SelectedCourse sigue siendo null aquí, significa que la lista de cursos está vacía.
+                // La UI deberá manejar un SelectedCourse nulo.
             }
             catch (Exception ex)
             {
+                // Aquí podrías agregar un log para ver la pila de llamadas exacta si el error no es claro
+                System.Diagnostics.Debug.WriteLine($"Error al guardar curso: {ex.Message}");
                 await _dialogService.DisplayAlert("Error", $"Error al guardar curso: {ex.Message}", "OK");
             }
             finally
             {
                 IsBusy = false;
             }
+
         }
         private bool CanExecuteSaveCourse() => SelectedCourse != null && !IsBusy;
 
