@@ -111,45 +111,47 @@
                     </Picker>
                 </VerticalStackLayout>
 
-                <Button Grid.Row="4" Text="Guardar Asignación" Command="{Binding SaveAssignmentCommand}" />
-                <Button Grid.Row="5" Text="Eliminar Asignación" Command="{Binding DeleteAssignmentCommand}" BackgroundColor="Red" TextColor="White" />
+                <Button Grid.Row="4" Text="Guardar Asignación" Command="{Binding SaveAssignmentCommand}" Margin="0,5" />
+                <Button Grid.Row="5" Text="Eliminar Asignación" Command="{Binding DeleteAssignmentCommand}" BackgroundColor="Red" TextColor="White" Margin="0,5" />
             </Grid>
         </ScrollView>
 
-        <VerticalStackLayout Grid.Row="2" Grid.ColumnSpan="2" Padding="10">
-            <Label Text="Notas" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Center" />
-            <Button Text="Nueva Nota" Command="{Binding NewNoteCommand}" Margin="0,5" />
+        <ScrollView Grid.Row="2" Grid.ColumnSpan="2" Padding="10">
+            <Grid RowDefinitions="Auto, Auto, *, Auto, Auto, Auto" ColumnDefinitions="*">
+                <Label Grid.Row="0" Text="Notas" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Center" />
+                <Button Grid.Row="1" Text="Nueva Nota" Command="{Binding NewNoteCommand}" Margin="0,5" />
 
-            <CollectionView ItemsSource="{Binding Notes}"
-                            SelectedItem="{Binding SelectedNote}"
-                            SelectionMode="Single">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="vm:NoteViewModel">
-                        <Grid Padding="10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <VerticalStackLayout>
-                                <Label Text="{Binding Title}" FontAttributes="Bold" />
-                                <Label Text="{Binding CreatedDate, StringFormat='Creada: {0:dd/MM/yyyy}'}" FontSize="Small" TextColor="Gray" />
-                            </VerticalStackLayout>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+                <CollectionView Grid.Row="2"
+                                ItemsSource="{Binding Notes}"
+                                SelectedItem="{Binding SelectedNote}"
+                                SelectionMode="Single">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:NoteViewModel">
+                            <Grid Padding="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                    <Label Text="{Binding CreatedDate, StringFormat='Creada: {0:dd/MM/yyyy}'}" FontSize="Small" TextColor="Gray" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
 
-            <ScrollView IsVisible="{Binding SelectedNote, Converter={StaticResource NullToBoolConverter}}">
-                <VerticalStackLayout Spacing="5" Margin="0,10,0,0">
+                <VerticalStackLayout Grid.Row="3" Spacing="5" Margin="0,10,0,0"
+                                     IsVisible="{Binding SelectedNote, Converter={StaticResource NullToBoolConverter}}">
                     <Label Text="Detalles de Nota" FontSize="Small" FontAttributes="Bold" />
                     <Entry Placeholder="Título de la Nota" Text="{Binding SelectedNote.Title}" />
                     <Editor Placeholder="Contenido de la Nota" Text="{Binding SelectedNote.Content}" AutoSize="TextChanges" HeightRequest="100" />
                 </VerticalStackLayout>
-            </ScrollView>
 
-            <Button Text="Guardar Nota" Command="{Binding SaveNoteCommand}" />
-            <Button Text="Eliminar Nota" Command="{Binding DeleteNoteCommand}" BackgroundColor="Red" TextColor="White" />
-        </VerticalStackLayout>
+                <Button Grid.Row="4" Text="Guardar Nota" Command="{Binding SaveNoteCommand}" Margin="0,5" />
+                <Button Grid.Row="5" Text="Eliminar Nota" Command="{Binding DeleteNoteCommand}" BackgroundColor="Red" TextColor="White" Margin="0,5" />
+            </Grid>
+        </ScrollView>
 
     </Grid>
 </ContentPage>
